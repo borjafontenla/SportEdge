@@ -1,28 +1,27 @@
 .dashboard {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    width: 100vw;
-    background-color: #fff;
-  }
-  
-  .videoArea {
-    flex: 0 0 80%;
-    height: 80vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #000;
-  }
-  
-  .sidePanel {
-    flex: 0 0 20%;
-    height: 80vh;
-    padding: 20px;
-    box-sizing: border-box;
-    border-left: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-  }
-  
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+  background-color: #fff;
+}
+
+.videoArea {
+  flex: 0 0 80%;
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+}
+
+.sidePanel {
+  flex: 0 0 20%;
+  height: 80vh;
+  padding: 20px;
+  box-sizing: border-box;
+  border-left: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}

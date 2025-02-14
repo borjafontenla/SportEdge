@@ -1,13 +1,36 @@
-import React from 'react';
-import styles from './styles/VideoStreamH264.module.css';
+// src/components/Camera/VideoStreamH264.jsx
+import React, { useRef, useEffect } from 'react';
+import styles from './VideoStreamH264.module.css';
+import Hls from 'hls.js';
 
 const VideoStreamH264 = ({ streamUrl }) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      // Si el navegador soporta HLS nativamente (como Safari)
+      if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+        videoRef.current.src = streamUrl;
+      } else if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(streamUrl);
+        hls.attachMedia(videoRef.current);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          videoRef.current.play();
+        });
+        // Limpiar al desmontar
+        return () => {
+          hls.destroy();
+        };
+      } else {
+        console.error("HLS no es soportado en este navegador.");
+      }
+    }
+  }, [streamUrl]);
+
   return (
     <div className={styles.container}>
-      <video className={styles.video} autoPlay controls>
-        <source src={streamUrl} type="video/mp4; codecs=h264" />
-        Tu navegador no soporta la reproducción de H.264.
-      </video>
+      <video ref={videoRef} className={styles.video} controls autoPlay muted />
     </div>
   );
 };
