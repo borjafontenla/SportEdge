@@ -1,0 +1,26 @@
+/* src/components/Camera/VideoStreamZoomCustom.module.css */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+
+.timeline {
+  margin-top: 10px;
+  width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slider {
+  width: 100%;
+}
+
+.timeDisplay {
+  font-size: 14px;
+  margin-top: 4px;
+  color: #333;
+}
