@@ -1,25 +1,15 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import Dashboard from './components/Layaout/Dashboard';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  // Credenciales de ejemplo (no se usan para el stream en este ejemplo ya que el backend lo maneja)
+  const credentials = {
+    username: "root",
+    password: "V9cVi3URKNQxdFd"
+  };
+
+  return <Dashboard credentials={credentials} />;
+  
 }
 
 export default App;

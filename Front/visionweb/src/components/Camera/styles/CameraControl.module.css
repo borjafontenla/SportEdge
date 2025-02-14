@@ -1,0 +1,41 @@
+.container {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding: 10px;
+  }
+  
+  .title {
+    font-weight: 400;
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .controlRow {
+    margin-bottom: 10px;
+  }
+  
+  .label {
+    font-size: 14px;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .slider {
+    margin-top: 5px;
+  }
+  
+  .button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #e5e5ea;
+    color: #000;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: #d1d1d6;
+  }
+  
