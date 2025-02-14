@@ -1,0 +1,14 @@
+.videoContainer {
+    position: relative;
+    overflow: hidden;
+    background-color: #000;
+    /* Las dimensiones se pasan vía inline style desde React */
+  }
+  
+  .video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Asegura que el video cubra el contenedor */
+    transition: transform 0.3s ease;
+  }
+  

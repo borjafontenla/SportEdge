@@ -8,20 +8,39 @@
 
 .videoArea {
   flex: 0 0 80%;
-  height: 80vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #000;
 }
 
 .sidePanel {
   flex: 0 0 20%;
-  height: 80vh;
   padding: 20px;
   box-sizing: border-box;
   border-left: 1px solid #ddd;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+}
+
+.zoomControls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.zoomButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #e5e5ea;
+  color: #000;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.zoomButton:hover {
+  background-color: #d1d1d6;
 }
