@@ -4,7 +4,7 @@ import VideoStreamZoomCustom from '../Camera/VideoStreamZoomCustom';
 import CameraControls from '../Camera/CameraControls';
 import CaptureOptions from '../Camera/CaptureOptions';
 import ZoomControls from '../Camera/ZoomControls';
-import styles from './Dashboard.module.css';
+import styles from './styles/Dashboard.module.css';
 
 const Dashboard = ({ credentials }) => {
   const [zoom, setZoom] = useState(1);
