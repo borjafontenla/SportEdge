@@ -5,6 +5,7 @@ const path = require('path');
 
 const cameraRoutes = require('./routes/camera');
 const { startHlsConversion } = require('./api/hlsService');
+const { startWebRTCConversion } = require('./api/webrtcService'); // Nuevo módulo para WebRTC
 
 const app = express();
 
@@ -20,6 +21,8 @@ app.use('/api/camera', cameraRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  // Inicia la conversión a HLS
+  // Inicia la conversión a HLS (stream principal)
   startHlsConversion();
+  // Inicia la pipeline WebRTC para el stream procesado
+  startWebRTCConversion();
 });

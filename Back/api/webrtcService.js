@@ -3,15 +3,11 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 function startWebRTCConversion() {
-  // Fuente: la URL RTSP de la cámara
   const inputUrl = "rtsp://root:V9cVi3URKNQxdFd@169.254.79.248:554/live.sdp";
 
-  // Directorio de salida (puedes usar un directorio temporal o dejar que GStreamer gestione la señal)
-  // En este ejemplo, la pipeline se usará para WebRTC, así que la salida se gestionará internamente.
-  // Nota: Aquí deberás gestionar la señalización WebRTC (por ejemplo, a través de WebSockets).
-
-  // Define el comando de GStreamer y sus argumentos:
-  const gstCommand = 'gst-launch-1.0';
+  // Define la ruta completa al ejecutable de gst-launch-1.0
+  const gstCommand = "B:\\gstreamer\\1.0\\msvc_x86_64\\bin\\gst-launch-1.0.exe";
+  
   const gstArgs = [
     '-v',
     'rtspsrc', `location=${inputUrl}`,
@@ -27,7 +23,6 @@ function startWebRTCConversion() {
 
   console.log("Iniciando GStreamer para WebRTC con:", gstCommand, gstArgs.join(' '));
 
-  // Ejecutar la pipeline
   const gstProcess = spawn(gstCommand, gstArgs);
 
   gstProcess.stdout.on('data', (data) => {
