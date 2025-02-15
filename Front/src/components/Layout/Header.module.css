@@ -12,13 +12,22 @@
   z-index: 1000;
 }
 
+/* Placeholder izquierdo para balancear el layout (igual al ancho del menú) */
+.leftPlaceholder {
+  width: 30px;
+}
+
+/* El nombre se centra gracias al flex: 1 y al text-align center */
 .brand {
+  flex: 1;
   font-family: 'Playfair Display', serif;
   font-size: 24px;
   font-weight: 700;
   color: #333;
+  text-align: center;
 }
 
+/* Menú hamburguesa en el lado derecho */
 .menuIcon {
   width: 30px;
   cursor: pointer;
@@ -34,6 +43,7 @@
   border-radius: 2px;
 }
 
+/* Menú desplegable */
 .navMenu {
   position: absolute;
   top: 100%;
