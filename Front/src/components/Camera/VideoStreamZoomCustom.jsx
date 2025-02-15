@@ -7,8 +7,9 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
   const videoRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
 
-  // Cargar el stream HLS en el video (sin controles nativos)
+  // Cargar el stream HLS en el <video>
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
@@ -20,7 +21,11 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           video.play();
+          setIsPlaying(true);
           console.log("Manifest parsed, playing stream...");
+        });
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          console.error("HLS.js error:", data);
         });
         return () => {
           hls.destroy();
@@ -31,7 +36,7 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
     }
   }, [streamUrl]);
 
-  // Actualizar tiempo y duración para el timeline personalizado
+  // Actualiza currentTime y duration para el timeline
   useEffect(() => {
     const video = videoRef.current;
     const updateTime = () => {
@@ -44,14 +49,31 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
     };
   }, []);
 
-  // Manejador para el slider de timeline
+  // Manejador del slider (timeline)
   const handleSeek = (e) => {
     const video = videoRef.current;
-    const seekTime = Number(e.target.value);
-    video.currentTime = seekTime;
+    video.currentTime = Number(e.target.value);
   };
 
-  // Estilos para el video: aplicamos transform scale solo al contenido del video
+  // Control de play/pause
+  const togglePlay = () => {
+    const video = videoRef.current;
+    if (video.paused) {
+      video.play();
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  // Función para saltar segundos (positivo o negativo)
+  const skipTime = (seconds) => {
+    const video = videoRef.current;
+    video.currentTime = Math.max(0, Math.min(video.currentTime + seconds, duration));
+  };
+
+  // Estilos dinámicos: el video se escala según el zoom, pero el contenedor se mantiene fijo.
   const videoStyle = {
     transform: `scale(${zoom})`,
     transformOrigin: 'center center',
@@ -59,7 +81,6 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
     height: `${height}px`
   };
 
-  // El contenedor fija el tamaño y oculta el overflow para simular el zoom digital
   const containerStyle = {
     width: `${width}px`,
     height: `${height}px`,
@@ -69,20 +90,19 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
 
   return (
     <div className={styles.wrapper}>
-      <div style={containerStyle}>
-        {/* Ocultamos los controles nativos para poder usar los nuestros */}
+      <div className={styles.videoContainer} style={containerStyle}>
         <video
           ref={videoRef}
           style={videoStyle}
+          controls={false}
           autoPlay
           muted
-          controls={false}
           className={styles.video}
         >
           Tu navegador no soporta HLS.
         </video>
       </div>
-      <div className={styles.timeline}>
+      <div className={styles.controls}>
         <input
           type="range"
           min="0"
@@ -93,6 +113,13 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
         />
         <div className={styles.timeDisplay}>
           {Math.floor(currentTime)} / {Math.floor(duration)}
+        </div>
+        <div className={styles.playbackControls}>
+          <button onClick={() => skipTime(-5)} className={styles.button}>{"<< 5s"}</button>
+          <button onClick={togglePlay} className={styles.button}>
+            {isPlaying ? "Pause" : "Play"}
+          </button>
+          <button onClick={() => skipTime(5)} className={styles.button}>{"5s >>"}</button>
         </div>
       </div>
     </div>
