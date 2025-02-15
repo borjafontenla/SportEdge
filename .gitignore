@@ -1,5 +1,7 @@
 node_modules
 hls
-dockerfile
+Dockerfile.gst
+Dockerfile.backend
 Dockerfile.signaling
 docker-compose.yml
+Dockerfile.frontend
