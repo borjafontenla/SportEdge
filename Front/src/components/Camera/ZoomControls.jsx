@@ -11,9 +11,10 @@ const ZoomControls = ({ zoom, setZoom }) => {
     <div className={styles.container}>
       <h3 className={styles.title}>Zoom Digital</h3>
       <div className={styles.buttonGroup}>
-        <button onClick={zoomOut} className={styles.button}>Alejar</button>
-        <button onClick={resetZoom} className={styles.button}>Resetear</button>
         <button onClick={zoomIn} className={styles.button}>Acercar</button>
+        <button onClick={resetZoom} className={styles.button}>Resetear</button>
+        <button onClick={zoomOut} className={styles.button}>Alejar</button>
+        
       </div>
     </div>
   );
