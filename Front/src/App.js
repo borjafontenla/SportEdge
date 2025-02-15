@@ -1,15 +1,22 @@
+// src/App.jsx
 import React from 'react';
-import Dashboard from './components/Layaout/Dashboard';
+import Header from './components/Layout/Header';
+import Dashboard from './components/Layout/Dashboard';
+import './App.css';
 
 function App() {
-  // Credenciales de ejemplo (no se usan para el stream en este ejemplo ya que el backend lo maneja)
+  // Ejemplo de credenciales
   const credentials = {
     username: "root",
     password: "V9cVi3URKNQxdFd"
   };
 
-  return <Dashboard credentials={credentials} />;
-  
+  return (
+    <div>
+      <Header />
+      <Dashboard credentials={credentials} />
+    </div>
+  );
 }
 
 export default App;
