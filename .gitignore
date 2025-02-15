@@ -1,2 +1,5 @@
 node_modules
 hls
+dockerfile
+Dockerfile.signaling
+docker-compose.yml
