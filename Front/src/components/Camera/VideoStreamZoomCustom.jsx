@@ -5,9 +5,23 @@ import styles from './styles/VideoStreamZoomCustom.module.css';
 
 const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) => {
   const videoRef = useRef(null);
+  const containerRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const offsetStart = useRef({ x: 0, y: 0 });
+
+  // Función para formatear el tiempo en HH:MM:SS
+  const formatTime = (time) => {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = Math.floor(time % 60);
+    const pad = (num) => String(num).padStart(2, '0');
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  };
 
   // Cargar el stream HLS en el <video>
   useEffect(() => {
@@ -49,6 +63,36 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
     };
   }, []);
 
+  // Manejadores para el panning (arrastrar)
+  const handleMouseDown = (e) => {
+    isDragging.current = true;
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    offsetStart.current = { ...offset };
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    let newX = offsetStart.current.x + dx;
+    let newY = offsetStart.current.y + dy;
+
+    // Límites para que el video no se salga del contenedor
+    const maxOffsetX = (width * (zoom - 1)) / 2;
+    const minOffsetX = -maxOffsetX;
+    const maxOffsetY = (height * (zoom - 1)) / 2;
+    const minOffsetY = -maxOffsetY;
+
+    newX = Math.max(minOffsetX, Math.min(newX, maxOffsetX));
+    newY = Math.max(minOffsetY, Math.min(newY, maxOffsetY));
+
+    setOffset({ x: newX, y: newY });
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+  };
+
   // Manejador del slider (timeline)
   const handleSeek = (e) => {
     const video = videoRef.current;
@@ -73,9 +117,9 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
     video.currentTime = Math.max(0, Math.min(video.currentTime + seconds, duration));
   };
 
-  // Estilos dinámicos: el video se escala según el zoom, pero el contenedor se mantiene fijo.
+  // Aplicar la transformación:
   const videoStyle = {
-    transform: `scale(${zoom})`,
+    transform: `translate(${offset.x / zoom}px, ${offset.y / zoom}px) scale(${zoom})`,
     transformOrigin: 'center center',
     width: `${width}px`,
     height: `${height}px`
@@ -85,12 +129,21 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
     width: `${width}px`,
     height: `${height}px`,
     overflow: 'hidden',
-    position: 'relative'
+    position: 'relative',
+    cursor: isDragging.current ? 'grabbing' : 'grab'
   };
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.videoContainer} style={containerStyle}>
+      <div
+        ref={containerRef}
+        className={styles.videoContainer}
+        style={containerStyle}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         <video
           ref={videoRef}
           style={videoStyle}
@@ -112,14 +165,18 @@ const VideoStreamZoomCustom = ({ streamUrl, zoom, width = 640, height = 480 }) =
           className={styles.slider}
         />
         <div className={styles.timeDisplay}>
-          {Math.floor(currentTime)} / {Math.floor(duration)}
+          {formatTime(currentTime)} / {formatTime(duration)}
         </div>
         <div className={styles.playbackControls}>
-          <button onClick={() => skipTime(-5)} className={styles.button}>{"<< 5s"}</button>
-          <button onClick={togglePlay} className={styles.button}>
-            {isPlaying ? "Pause" : "Play"}
+          <button onClick={() => skipTime(-5)} className={styles.button}>
+            <i className="fi fi-rs-backward-fast"></i>
           </button>
-          <button onClick={() => skipTime(5)} className={styles.button}>{"5s >>"}</button>
+          <button onClick={togglePlay} className={styles.button}>
+            {isPlaying ? <i className="fi fi-rs-pause"></i> : <i className="fi fi-rs-play"></i>}
+          </button>
+          <button onClick={() => skipTime(5)} className={styles.button}>
+            <i className="fi fi-rs-forward-fast"></i>
+          </button>
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.leftPlaceholder}></div>
-      <div className={styles.brand}>SportEdge</div>
+      <div className={styles.brand}>VisionEdge</div>
       <div className={styles.menuIcon} onClick={toggleMenu}>
         <div className={styles.bar}></div>
         <div className={styles.bar}></div>

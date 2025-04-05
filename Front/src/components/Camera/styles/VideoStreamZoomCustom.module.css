@@ -1,8 +1,10 @@
 /* src/components/Camera/styles/VideoStreamZoomCustom.module.css */
+
 .wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
 }
 
 .videoContainer {
@@ -10,48 +12,111 @@
   background-color: #000;
   border: 1px solid #333;
   border-radius: 8px;
+  overflow: hidden; /* Para que al mover el video no se salga del contenedor */
 }
 
 .video {
   object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
 .controls {
-  margin-top: 10px;
   width: 100%;
   max-width: 640px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Estilo del timeline */
+.timelineContainer {
+  width: 100%;
+  cursor: pointer;
+  margin-top: 8px;
+  position: relative;
 }
 
 .slider {
+  -webkit-appearance: none;
   width: 100%;
+  height: 4px;
+  background: #a3a3a3;
+  border-radius: 2px;
+  outline: none;
+  transition: background 0.3s ease;
   margin: 0;
+  cursor: pointer;
 }
 
+.slider:hover {
+  background: #bbb;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 2em;
+  height: 1em;
+  border-radius: 50%;
+  background: #78a3e4; /* Rojo para indicar progreso, similar a YouTube */
+  border: 0.5px solid #fff;
+  margin-top: -2px; /* Centrar el thumb en la pista */
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+}
+
+.slider::-moz-range-thumb {
+  width: 5em;
+  height: 5em;
+  border-radius: 50%;
+  background: #ff0000;
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Muestra el tiempo en formato HH:MM:SS */
 .timeDisplay {
   text-align: center;
   font-size: 14px;
   margin-top: 5px;
-  color: #333;
+  color: #666;
 }
 
+/* Controles de reproducción (botones de pausa y salto de 5s) */
 .playbackControls {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-top: 5px;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
 }
 
 .button {
-  padding: 6px 12px;
+  padding: 8px 16px;
   font-size: 14px;
   border: none;
   border-radius: 4px;
-  background-color: #e5e5ea;
-  color: #000;
+  background-color: #007aff; /* Azul moderno */
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .button:hover {
-  background-color: #bce4ff;
+  background-color: #005bb5;
+  transform: scale(1.05);
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+
+/* Si usas iconos (por ejemplo, de Fontisto, FontAwesome, etc.) en los botones */
+.button i {
+  font-size: 16px;
+  margin-right: 4px;
+  color: inherit;
 }
