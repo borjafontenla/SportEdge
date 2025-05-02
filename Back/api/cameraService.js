@@ -1,71 +1,74 @@
-// backend/api/cameraService.js
-const request = require('request');
+const axios = require('axios');
+const { getCameraConfigById } = require('../config/cameras');
 
-const CAM_IP = "169.254.79.248";
-const CAM_PORT = "80";
-const USERNAME = "root";
-const PASSWORD = "V9cVi3URKNQxdFd";
-
-/**
- * Envía un comando PTZ a la cámara.
- * Los comandos aceptados son 'zoom_in' y 'zoom_out'.
- * Para 'zoom_in' se usará el parámetro zoom=tele y para 'zoom_out', zoom=wide.
- */
-const sendPTZCommand = (command) => {
-  let zoomParam;
-  if (command === 'zoom_in') {
-    zoomParam = 'tele';
-  } else if (command === 'zoom_out') {
-    zoomParam = 'wide';
-  } else {
-    return Promise.reject(new Error('Comando PTZ desconocido'));
-  }
-
-  // Usamos el endpoint de la cámara que se observa en la solicitud oficial
-  const endpoint = '/cgi-bin/camctrl/eCamCtrl.cgi';
-
-  // Incluimos parámetros adicionales, incluyendo un timestamp (útil para evitar caché)
-  const query = {
-    channel: '0',
-    stream: '0',
-    zoom: zoomParam,
-    _: Date.now() // timestamp
-  };
-
-  // Construir la cadena de consulta
-  const queryString = Object.keys(query)
-    .map(key => `${key}=${encodeURIComponent(query[key])}`)
-    .join('&');
-
-  // Construir la URL completa con autenticación básica incluida en la URL
-  const ptzUrl = `http://${USERNAME}:${PASSWORD}@${CAM_IP}:${CAM_PORT}${endpoint}?${queryString}`;
-  console.log("Enviando comando PTZ a:", ptzUrl);
-
-  // Opciones que replican los encabezados enviados por la interfaz oficial
-  const options = {
-    url: ptzUrl,
-    headers: {
-      "Referer": "http://169.254.79.248/index.html",
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0",
-      "X-Requested-With": "XMLHttpRequest",
-      "Cookie": "webptzmode=continuous; activatedmode=digital; g_mode=1; viewsizemode=Auto; 4x3=false; imageprofileindex=0; TmpImageNormalLightEnable=0; sensorprofileindex=0; TmpVideoNormalLightEnable=0"
-    }
-  };
-
-  return new Promise((resolve, reject) => {
-    request.get(options, (error, response, body) => {
-      if (error) {
-        console.error("Error en el comando PTZ:", error);
-        return reject(error);
-      }
-      console.log("Respuesta del comando PTZ:", response.statusCode, body);
-      if (response.statusCode === 200) {
-        resolve({ success: true, body });
-      } else {
-        reject(new Error(`Error en PTZ, código: ${response.statusCode} - ${body}`));
-      }
-    });
-  });
+// Mantiene los comandos internos para compatibilidad con la API de Vivotek
+const PTZ_COMMAND_MAP = {
+  zoom_in: 'tele',
+  zoom_out: 'wide',
+  // Puedes añadir más aquí si la cámara los soporta:
+  // 'move_up': 'up', 'move_down': 'down', 'move_left': 'left', 'move_right': 'right', 'stop': 'stop'
 };
 
+/**
+ * Envía un comando PTZ a la cámara especificada.
+ */
+const sendPTZCommand = async (cameraId, command) => {
+  const config = getCameraConfigById(cameraId);
+  if (!config) {
+    throw new Error(`Configuración no encontrada para la cámara: ${cameraId}`);
+  }
+
+  const zoomOrMoveParam = PTZ_COMMAND_MAP[command];
+  if (!zoomOrMoveParam) {
+    throw new Error(`Comando PTZ desconocido o no mapeado: ${command}`);
+  }
+
+  // Determina si es un comando de zoom o movimiento (si añades más)
+  const isZoomCommand = command.startsWith('zoom_');
+  const paramName = isZoomCommand ? 'zoom' : 'move'; // Asume 'move' para otros comandos
+
+  const endpoint = '/cgi-bin/camctrl/eCamCtrl.cgi'; // Endpoint común para Vivotek PTZ
+  const params = {
+    channel: '0', // Generalmente 0
+    stream: '0',  // Generalmente 0
+    [paramName]: zoomOrMoveParam, // Nombre de parámetro dinámico
+    _: Date.now() // Cache buster
+  };
+
+  const ptzUrl = `http://${config.ip}:${config.port}${endpoint}`;
+  console.log(`[${cameraId}] Enviando comando PTZ: ${command} a ${ptzUrl}`);
+
+  try {
+    const response = await axios.get(ptzUrl, {
+      params: params,
+      auth: {
+        username: config.user,
+        password: config.pass
+      },
+      // Headers: Reduce al mínimo necesario. A menudo, solo la autenticación es suficiente.
+      // headers: {
+      //   "Referer": `http://${config.ip}/`, // Referer genérico suele bastar
+      //   "User-Agent": "CameraControlBackend/1.0", // Opcional: Identifica tu app
+      // }
+    });
+
+    console.log(`[${cameraId}] Respuesta del comando PTZ: ${response.status}`);
+    if (response.status === 200) {
+      return { success: true, message: `Comando ${command} enviado a ${cameraId}` };
+    } else {
+      // Axios suele lanzar error para >2xx, pero por si acaso
+      throw new Error(`Respuesta inesperada del PTZ: ${response.status}`);
+    }
+  } catch (error) {
+    const status = error.response?.status;
+    const data = error.response?.data;
+    console.error(`[${cameraId}] Error en el comando PTZ: ${status || error.message}`, data || '');
+    if (status === 401) {
+      throw new Error(`Error de autenticación PTZ para ${cameraId}. Verifica usuario/contraseña.`);
+    }
+    throw new Error(`Error al enviar comando PTZ a ${cameraId}: ${status || error.message}`);
+  }
+};
+
+// Ya no necesitamos las funciones de HLS/WebRTC aquí si las maneja el server principal o servicios dedicados
 module.exports = { sendPTZCommand };

@@ -3,14 +3,14 @@
 const request = require('request');
 
 // Configuración de la cámara (ajusta estos valores según tu cámara)
-const CAM_IP = "169.254.79.248";  // IP de la cámara
+const CAM_IP = "169.254.91.31";  // IP de la cámara
 const CAM_PORT = "80";            // Puerto HTTP (puede ser 80 o 8080)
 const STREAM_PATH = "video.mjpg"; // Nombre del stream MJPEG
 
 exports.getCameraStream = (req, res) => {
   // Usamos credenciales fijas
   const username = "root";
-  const password = "V9cVi3URKNQxdFd";
+  const password = "admin1234";
 
   // Construimos la URL base sin incrustar las credenciales
   const cameraUrl = `http://${CAM_IP}:${CAM_PORT}/${STREAM_PATH}`;

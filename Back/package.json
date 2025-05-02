@@ -4,13 +4,15 @@
     "description": "Backend proxy para la cámara Vivotek",
     "main": "server.js",
     "scripts": {
-    "start:backend": "node server.js",
-    "start:signal": "node signalingServer.js",
-    "start:gst": "python gstPipeline.py",
-    "start:all": "concurrently \"npm run start:backend\" \"npm run start:signal\" \"npm run start:gst\" "
+        "start:backend": "node server.js",
+        "start:signal": "node signalingServer.js",
+        "start:gst": "python gstPipeline.py",
+        "start:all": "concurrently \"npm run start:backend\" \"npm run start:signal\" \"npm run start:gst\" "
     },
     "dependencies": {
+        "axios": "^1.9.0",
         "cors": "^2.8.5",
+        "dotenv": "^16.5.0",
         "express": "^4.18.2",
         "hls.js": "^1.5.20",
         "morgan": "^1.10.0",
