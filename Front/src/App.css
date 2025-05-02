@@ -1,41 +1,14 @@
-/* Importar fuentes o librerías CSS globales aquí */
+/* frontend/src/App.css */
+
+/* Importar fuentes o librerías CSS globales aquí SIEMPRE PRIMERO */
 @import url('https://cdn.jsdelivr.net/npm/fontisto@4.1.0/css/fontisto/fontisto.min.css');
 
-.App {
-  text-align: center;
+/* Estilo para el contenedor principal debajo del header */
+.app-main-content {
+  padding-top: 60px; /* DEBE COINCIDIR con la altura del Header */
+  height: calc(100vh - 60px); /* Ocupa el resto de la altura viewport */
+  box-sizing: border-box;
+  overflow: hidden; /* Evitar scroll aquí, el dashboard/sidepanel lo manejan */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Puedes añadir otros estilos globales específicos de App aquí si es necesario */

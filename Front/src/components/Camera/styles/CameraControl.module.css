@@ -1,41 +1,74 @@
+/* src/components/Camera/styles/CameraControl.module.css */
 .container {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    padding: 10px;
-  }
-  
-  .title {
-    font-weight: 400;
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #333;
-  }
-  
-  .controlRow {
-    margin-bottom: 10px;
-  }
-  
-  .label {
-    font-size: 14px;
-    color: #555;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .slider {
-    margin-top: 5px;
-  }
-  
-  .button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 8px;
-    background-color: #e5e5ea;
-    color: #000;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .button:hover {
-    background-color: #d1d1d6;
-  }
-  
+  /* font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif; */
+  /* Font heredado del dashboard */
+  padding: 15px; /* Aumentar padding para un mejor espaciado */
+  border: 1px solid #e0e0e0; /* Borde sutil */
+  border-radius: 8px; /* Bordes redondeados */
+  background-color: #f9f9f9; /* Fondo ligeramente diferente */
+  margin-bottom: 15px; /* Espacio debajo */
+}
+
+.title {
+  font-weight: 500; /* Un poco más de peso */
+  font-size: 16px; /* Ligeramente más pequeño */
+  margin-top: 0; /* Quitar margen superior */
+  margin-bottom: 15px; /* Más espacio debajo del título */
+  color: #333;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee; /* Separador */
+}
+
+.controlRow {
+  margin-bottom: 15px; /* Más espacio entre filas */
+}
+
+.label {
+  font-size: 14px;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  gap: 5px; /* Espacio entre label y slider */
+}
+
+.slider {
+  margin-top: 5px;
+  width: 100%; /* Ocupar todo el ancho */
+  cursor: pointer;
+}
+
+.button {
+  display: block; /* Ocupar ancho completo */
+  width: 100%;
+  padding: 10px 16px; /* Botón más grande */
+  border: none;
+  border-radius: 8px;
+  background-color: #007aff; /* Azul principal */
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 10px;
+}
+
+.button:hover {
+  background-color: #005bb5; /* Azul más oscuro al pasar */
+}
+
+.button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #ff3b30; /* Rojo para errores */
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.loading {
+  font-size: 12px;
+  color: #888;
+  margin-top: 5px;
+  text-align: center;
+}

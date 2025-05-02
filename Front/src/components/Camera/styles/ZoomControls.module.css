@@ -1,33 +1,49 @@
 /* src/components/Camera/styles/ZoomControls.module.css */
 .container {
-    margin-bottom: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    text-align: center;
-  }
-  
-  .title {
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #333;
-  }
-  
-  .buttonGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 8px;
-    background-color: #e5e5ea;
-    color: #000;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .button:hover {
-    background-color: #d1d1d6;
-  }
-  
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  margin-bottom: 15px;
+}
+
+.title {
+  font-weight: 500;
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  text-align: center; /* Centrar título */
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: space-around; /* Distribuir botones */
+  align-items: center; /* Centrar verticalmente */
+  gap: 10px;
+}
+
+.button {
+  flex: 1; /* Ocupar espacio similar */
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #e5e5ea;
+  color: #000;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.button:hover {
+  background-color: #d1d1d6;
+}
+
+.button:disabled {
+  background-color: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+}

@@ -1,0 +1,21 @@
+# VisionWeb/.dockerignore
+
+# Ignorar node_modules en ambos subproyectos
+**/node_modules
+**/npm-debug.log
+**/Dockerfile
+**/.dockerignore
+
+# Entornos específicos (¡IMPORTANTE!)
+**/.env
+
+# Build artifacts
+**/build
+**/dist
+
+# Git / OS files
+.git
+.gitignore
+*.md
+LICENSE
+.DS_Store

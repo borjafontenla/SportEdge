@@ -1,13 +1,29 @@
+/* frontend/src/index.css */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5; /* Fondo general */
+  color: #1d1d1f; /* Color de texto por defecto */
+  height: 100vh; /* Asegurar que body ocupe toda la altura */
+  overflow: hidden; /* Evitar scroll en body */
 }
+
+/* Asegurar que el root ocupe toda la altura */
+#root {
+    height: 100%;
+}
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Reset básico opcional */
+* {
+  box-sizing: border-box;
 }

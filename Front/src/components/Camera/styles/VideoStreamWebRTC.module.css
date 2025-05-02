@@ -1,16 +1,44 @@
 /* src/components/Camera/styles/VideoStreamWebRTC.module.css */
 .container {
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .video {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-  
+  width: 100%; /* Ocupar el 100% del contenedor padre */
+  height: 100%;
+  background-color: #1c1c1e; /* Un negro ligeramente más suave */
+  display: flex;
+  flex-direction: column; /* Para poner status bar debajo */
+  justify-content: center;
+  align-items: center;
+  position: relative; /* Para posicionar elementos internos si es necesario */
+  overflow: hidden;
+}
+
+.video {
+  display: block;
+  flex-grow: 1; /* Ocupar el espacio principal */
+  width: 100%; /* Intentar llenar el ancho */
+  max-height: calc(100% - 25px); /* Dejar espacio para la barra de estado */
+  object-fit: contain;
+}
+
+/* Barra de estado añadida */
+.statusBar {
+  position: absolute; /* Posicionar sobre el video o debajo */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente */
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  box-sizing: border-box;
+  text-align: center;
+  z-index: 1; /* Asegurar que esté visible */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.errorText {
+  color: #ffcc00; /* Amarillo/Naranja para errores en status */
+  font-weight: bold;
+  margin-left: 5px;
+}
