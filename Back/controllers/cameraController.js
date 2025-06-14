@@ -1,39 +1,60 @@
-// backend/controllers/cameraController.js
+// back/controllers/cameraController.js
 
-const request = require('request');
+const { spawn } = require('child_process');
+const { getCameraConfigById } = require('../config/cameras');
 
-// Configuración de la cámara (ajusta estos valores según tu cámara)
-const CAM_IP = "169.254.91.31";  // IP de la cámara
-const CAM_PORT = "80";            // Puerto HTTP (puede ser 80 o 8080)
-const STREAM_PATH = "video.mjpg"; // Nombre del stream MJPEG
+/**
+ * Inicia un stream MJPEG desde una cámara MIPI CSI bajo demanda.
+ */
+exports.getMjpegStream = (req, res) => {
+  const { cameraId } = req.params;
+  const config = getCameraConfigById(cameraId);
 
-exports.getCameraStream = (req, res) => {
-  // Usamos credenciales fijas
-  const username = "root";
-  const password = "admin1234";
+  if (!config) {
+    return res.status(404).json({ error: `Cámara con ID '${cameraId}' no encontrada.` });
+  }
 
-  // Construimos la URL base sin incrustar las credenciales
-  const cameraUrl = `http://${CAM_IP}:${CAM_PORT}/${STREAM_PATH}`;
-  console.log("Proxying stream desde:", cameraUrl);
+  // Pipeline de GStreamer para capturar de MIPI y codificar a MJPEG
+  const gstArgs = [
+    'nvarguscamerasrc', `sensor-id=${config.sensorId}`,
+    '!', 'video/x-raw(memory:NVMM),width=1280,height=720,framerate=21/1',
+    '!', 'nvvidconv', // Conversor acelerado por hardware
+    '!', 'jpegenc',   // Codificador a JPEG
+    '!', 'fdsink', 'fd=1' // Enviar a stdout
+  ];
 
-  // Realizamos la petición GET usando la opción auth para enviar las credenciales
-  request.get({
-    url: cameraUrl,
-    auth: {
-      user: username,
-      pass: password,
-      sendImmediately: true
+  console.log(`[${cameraId}] Iniciando stream MJPEG: gst-launch-1.0 ${gstArgs.join(' ')}`);
+  const gstreamer = spawn('gst-launch-1.0', gstArgs);
+
+  gstreamer.stderr.on('data', (data) => {
+    console.error(`[${cameraId}] GStreamer MJPEG stderr: ${data}`);
+  });
+
+  gstreamer.on('exit', (code) => {
+    if (code !== 0 && code !== null) {
+      console.log(`[${cameraId}] Proceso MJPEG de GStreamer terminó con el código: ${code}`);
     }
-  })
-    .on('response', (response) => {
-      console.log("Respuesta del stream:", response.statusCode);
-      if (response.statusCode === 400) {
-        console.error("Error 400: Bad Request");
-      }
-    })
-    .on('error', (err) => {
-      console.error("Error en el stream de la cámara:", err);
-      res.status(500).send("Error al conectarse a la cámara");
-    })
-    .pipe(res);
+  });
+
+  // Cabecera para el stream MJPEG
+  res.writeHead(200, {
+    'Content-Type': 'multipart/x-mixed-replace; boundary=--myboundary',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+  });
+
+  // Pipe de la salida de GStreamer (stdout) a la respuesta, envolviendo cada frame
+  gstreamer.stdout.on('data', (data) => {
+    res.write('--myboundary\r\n');
+    res.write('Content-Type: image/jpeg\r\n');
+    res.write(`Content-Length: ${data.length}\r\n\r\n`);
+    res.write(data);
+    res.write('\r\n');
+  });
+
+  // CRÍTICO: Limpiar el proceso si el cliente se desconecta
+  req.on('close', () => {
+    console.log(`[${cameraId}] Cliente de MJPEG desconectado. Deteniendo GStreamer...`);
+    gstreamer.kill('SIGKILL');
+  });
 };

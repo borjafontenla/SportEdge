@@ -1,32 +1,21 @@
-require('dotenv').config();
+// back/routes/cameras.js
 
-const cameras = [];
+const express = require('express');
+const router = express.Router();
+const { getCameraStream } = require('../controllers/cameraController'); // Nombre de función actualizado
+const { cameras, getCameraConfigById } = require('../config/cameras');
 
-// Busca cámaras definidas en .env (CAM1, CAM2, ..., CAMN)
-let i = 1;
-while (process.env[`CAM${i}_ID`]) {
-  const id = process.env[`CAM${i}_ID`];
-  cameras.push({
-    id: id,
-    ip: process.env[`CAM${i}_IP`],
-    port: process.env[`CAM${i}_PORT`] || 80,
-    user: process.env[`CAM${i}_USER`],
-    pass: process.env[`CAM${i}_PASS`],
-    rtspUrl: process.env[`CAM${i}_RTSP_URL`],
-    mjpegPath: process.env[`CAM${i}_MJPEG_PATH`], // Opcional
-  });
-  i++;
-}
+// Endpoint para listar las cámaras MIPI configuradas
+router.get('/', (req, res) => {
+  const cameraList = cameras.map(c => ({ id: c.id, name: c.name, sensorId: c.sensorId }));
+  res.json(cameraList);
+});
 
-if (cameras.length === 0) {
-  console.warn("Advertencia: No se encontraron configuraciones de cámara en el archivo .env (formato CAM1_ID, CAM1_IP, etc.)");
-}
+// NUEVO: Endpoint para el stream MJPEG bajo demanda
+// Ejemplo: GET /api/cameras/cam-csi-0/mjpeg
+router.get('/:cameraId/mjpeg', getCameraStream);
 
-const getCameraConfigById = (cameraId) => {
-  return cameras.find(cam => cam.id === cameraId);
-};
+// ELIMINADO: La ruta PTZ ya no es aplicable a cámaras MIPI
+// router.get('/:cameraId/ptz', ...);
 
-module.exports = {
-  cameras,
-  getCameraConfigById,
-};
+module.exports = router;

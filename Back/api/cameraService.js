@@ -1,3 +1,5 @@
+//Back/api/cameraService.js
+
 const axios = require('axios');
 const { getCameraConfigById } = require('../config/cameras');
 

@@ -8,23 +8,25 @@ from gi.repository import Gst, GstWebRTC, GstSdp, GLib
 import socketio
 import sys
 
-# --- Configuración y Argumentos ---
-parser = argparse.ArgumentParser(description='GStreamer WebRTC Sender')
-parser.add_argument('--rtsp-url', required=True, help='RTSP URL of the camera stream')
+# --- CAMBIO: Argumentos actualizados ---
+parser = argparse.ArgumentParser(description='GStreamer MIPI to WebRTC Sender')
+# El argumento --rtsp-url se reemplaza por --sensor-id
+parser.add_argument('--sensor-id', type=int, required=True, help='MIPI CSI camera sensor ID (e.g., 0 or 1)')
 parser.add_argument('--camera-id', required=True, help='Unique ID for this camera stream')
 parser.add_argument('--signaling-server', default='http://localhost:5001', help='URL of the signaling server')
 parser.add_argument('--stun-server', default='stun://stun.l.google.com:19302', help='STUN server URL')
-parser.add_argument('--video-width', type=int, default=1280, help='Output video width for VP8 encoding') # Ajustado a 720p por defecto
-parser.add_argument('--video-height', type=int, default=720, help='Output video height for VP8 encoding')
+parser.add_argument('--video-width', type=int, default=1280, help='Output video width')
+parser.add_argument('--video-height', type=int, default=720, help='Output video height')
 args = parser.parse_args()
 
 CAMERA_ID = args.camera_id
-RTSP_SRC_LOCATION = args.rtsp_url
+SENSOR_ID = args.sensor_id
 SIGNALING_SERVER = args.signaling_server
 STUN_SERVER = args.stun_server
 WIDTH = args.video_width
 HEIGHT = args.video_height
 
+print(f"[{CAMERA_ID}] Iniciando WebRTC Sender para Sensor MIPI ID: {SENSOR_ID}")
 print(f"[{CAMERA_ID}] Iniciando WebRTC Sender:")
 print(f"[{CAMERA_ID}]   RTSP Source: {RTSP_SRC_LOCATION}")
 print(f"[{CAMERA_ID}]   Signaling: {SIGNALING_SERVER}")
@@ -108,16 +110,14 @@ def error(err):
 
 # Pipeline con re-codificación a VP8 (más compatible, pero más CPU)
 pipeline_str = f'''
-  rtspsrc location="{RTSP_SRC_LOCATION}" name=src latency=100 tcp-timeout=5000000 !
-  rtph264depay ! decodebin ! queue !
-  videoconvert ! videoscale !
-  video/x-raw,width={WIDTH},height={HEIGHT} !
-  vp8enc deadline=1 keyframe-max-dist=10 target-bitrate=1000000 ! # Ajusta bitrate según necesites
-  rtpvp8pay name=pay0 pt=96 picture-id-mode=2 !
+  nvarguscamerasrc sensor-id={SENSOR_ID} !
+  video/x-raw(memory:NVMM),width={WIDTH},height={HEIGHT},framerate=30/1 !
+  nvvidconv !
+  vp8enc deadline=1 !  # Codificador VP8 acelerado por hardware
+  rtpvp8pay !
   queue !
   webrtcbin name=sendrecv bundle-policy=max-bundle stun-server={STUN_SERVER}
 '''
-
 def on_negotiation_needed(element):
     print(f"[{CAMERA_ID}] Negociación necesaria, creando oferta SDP...")
     promise = Gst.Promise.new_with_change_func(offer_created, element, None) # Pasar None como user_data inicial
