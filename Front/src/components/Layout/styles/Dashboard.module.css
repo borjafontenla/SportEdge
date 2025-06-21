@@ -23,7 +23,7 @@
 }
 
 .sidePanel {
-  flex: 0 0 25%; /* Panel lateral ocupa 25% */
+  flex: 0 0 20%; /* Panel lateral ocupa 25% */
   max-width: 350px; /* Ancho máximo para que no sea enorme en pantallas grandes */
   min-width: 280px; /* Ancho mínimo */
   padding: 20px;

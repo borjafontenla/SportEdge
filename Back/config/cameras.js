@@ -1,21 +1,37 @@
-// back/routes/cameras.js
+// back/config/cameras.js
 
-const express = require('express');
-const router = express.Router();
-const { getCameraStream } = require('../controllers/cameraController'); // Nombre de función actualizado
-const { cameras, getCameraConfigById } = require('../config/cameras');
+require('dotenv').config();
 
-// Endpoint para listar las cámaras MIPI configuradas
-router.get('/', (req, res) => {
-  const cameraList = cameras.map(c => ({ id: c.id, name: c.name, sensorId: c.sensorId }));
-  res.json(cameraList);
-});
+const cameras = [];
 
-// NUEVO: Endpoint para el stream MJPEG bajo demanda
-// Ejemplo: GET /api/cameras/cam-csi-0/mjpeg
-router.get('/:cameraId/mjpeg', getCameraStream);
+// Busca cámaras MIPI definidas en .env (CAM1, CAM2, ..., CAMN)
+let i = 1;
+while (process.env[`CAM${i}_ID`]) {
+  const id = process.env[`CAM${i}_ID`];
+  cameras.push({
+    id: id,
+    name: process.env[`CAM${i}_NAME`] || `Cámara MIPI ${i}`,
+    // El dato más importante ahora es el sensor-id
+    sensorId: parseInt(process.env[`CAM${i}_SENSOR_ID`], 10),
+  });
+  i++;
+}
 
-// ELIMINADO: La ruta PTZ ya no es aplicable a cámaras MIPI
-// router.get('/:cameraId/ptz', ...);
+// Validación crucial
+if (cameras.some(cam => isNaN(cam.sensorId))) {
+  console.error("ERROR: Una o más cámaras tienen un CAM_SENSOR_ID inválido o no definido en el archivo .env. Este valor es obligatorio.");
+  process.exit(1);
+}
 
-module.exports = router;
+if (cameras.length === 0) {
+  console.warn("Advertencia: No se encontraron configuraciones de cámara MIPI en el archivo .env (formato CAM1_ID, CAM1_SENSOR_ID, etc.)");
+}
+
+const getCameraConfigById = (cameraId) => {
+  return cameras.find(cam => cam.id === cameraId);
+};
+
+module.exports = {
+  cameras,
+  getCameraConfigById,
+};

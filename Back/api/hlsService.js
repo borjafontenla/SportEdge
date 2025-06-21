@@ -10,46 +10,55 @@ function startHlsStream(cameraConfig) {
   const outputDir = path.join(__dirname, '..', 'hls', cameraId);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  const segmentDuration = 2; // 2 segundos por segmento
-  const playlistSize = 5;    // 5 segmentos en la lista (10s de buffer)
+  const segmentDuration = 2;
+  const playlistSize = 5;
 
-  // Pipeline de GStreamer para MIPI -> H.264 -> HLS
   const gstArgs = [
     'nvarguscamerasrc', `sensor-id=${sensorId}`, '!',
     'video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1', '!',
-    'nvv4l2h264enc', 'bitrate=2000000', '!', // Codificador H.264 acelerado por hardware
+    'nvv4l2h264enc', 'bitrate=2000000', '!',
     'h264parse', '!',
     'mpegtsmux', '!',
     'hlssink2',
-    `playlist-root=http://localhost:5000/hls/${cameraId}`, // URL base para los segmentos en el playlist
-    `playlist-location=${path.join(outputDir, 'stream.m3u8')}`, // Dónde guardar el .m3u8
-    `location=${path.join(outputDir, 'segment%05d.ts')}`, // Dónde guardar los segmentos .ts
-    `max-files=${playlistSize}`, // Número máximo de segmentos a mantener
-    `target-duration=${segmentDuration}` // Duración objetivo del segmento
+    `playlist-root=http://localhost:5000/hls/${cameraId}`,
+    `playlist-location=${path.join(outputDir, 'stream.m3u8')}`,
+    `location=${path.join(outputDir, 'segment%05d.ts')}`,
+    `max-files=${playlistSize}`,
+    `target-duration=${segmentDuration}`
   ];
 
-  console.log(`[${cameraId}] Iniciando GStreamer HLS: gst-launch-1.0 ${gstArgs.join(' ')}`);
-  const gstProcess = spawn('gst-launch-1.0', gstArgs);
+  try {
+    const command = 'gst-launch-1.0';
+    console.log(`[${cameraId}] Iniciando GStreamer HLS: ${command} ${gstArgs.join(' ')}`);
+    const gstProcess = spawn(command, gstArgs);
 
-  // Manejo de salida y errores (importante para depuración)
-  gstProcess.stderr.on('data', (data) => {
-    // GStreamer a menudo envía información de estado a stderr, así que no siempre es un error
-    console.log(`[${cameraId}] GStreamer HLS stderr: ${data.toString().trim()}`);
-  });
-  
-  gstProcess.on('error', (err) => {
-    console.error(`[${cameraId}] Error al iniciar el proceso HLS de GStreamer: ${err}`);
-  });
+    // --- CAMBIO CLAVE: MANEJO DE ERRORES DE SPAWN ---
+    gstProcess.on('error', (err) => {
+      // Este evento se dispara si el comando 'gst-launch-1.0' no se puede ejecutar.
+      console.error(`[${cameraId}] FALLO AL LANZAR HLS. Comando '${command}' no encontrado o sin permisos. Error: ${err.message}`);
+    });
 
-  gstProcess.on('close', (code) => {
-    if (code !== 0 && code !== null && code !== 255) {
-      console.error(`[${cameraId}] Proceso GStreamer HLS falló con código ${code}. Considera un reinicio automático.`);
-    } else {
-      console.log(`[${cameraId}] Proceso GStreamer HLS finalizó limpiamente.`);
-    }
-  });
+    // Manejo de salida y errores del PROCESO una vez iniciado
+    gstProcess.stderr.on('data', (data) => {
+      const message = data.toString().trim();
+      // Filtrar para no saturar la consola con mensajes de estado de GStreamer
+      if (message.includes('ERROR') || message.includes('WARNING')) {
+        console.warn(`[${cameraId}] GStreamer HLS (stderr): ${message}`);
+      }
+    });
 
-  return gstProcess;
+    gstProcess.on('close', (code) => {
+      if (code !== 0 && code !== null && code !== 255) {
+        console.log(`[${cameraId}] Proceso GStreamer HLS terminó inesperadamente con código ${code}.`);
+      }
+    });
+
+    return gstProcess; // Devuelve el proceso si se pudo iniciar
+
+  } catch (error) {
+    console.error(`[${cameraId}] Excepción al intentar lanzar HLS: ${error.message}`);
+    return null; // Indica que el proceso no se pudo iniciar
+  }
 }
 
 module.exports = { startHlsStream };
